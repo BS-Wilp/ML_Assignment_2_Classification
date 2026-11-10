@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 import joblib
 import os
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 
 st.title("Adult Income Prediction")
 st.write("Machine Learning Assignment 2")
@@ -38,10 +39,31 @@ if uploaded_file is not None:
 
         model = joblib.load(model_path)
 
-        predictions = model.predict(data)
+        X_input = data.drop(columns=["income"], errors="ignore")
+        predictions = model.predict(X_input)
 
         result = data.copy()
         result["Predicted Income"] = predictions
+        if "income" in data.columns:
+            y_actual = data["income"]
+
+            st.subheader("Model Evaluation")
+
+            st.write("Accuracy:", accuracy_score(y_actual, predictions))
+            st.write("Precision:", precision_score(y_actual, predictions, zero_division=0))
+            st.write("Recall:", recall_score(y_actual, predictions, zero_division=0))
+            st.write("F1 Score:", f1_score(y_actual, predictions, zero_division=0))
+
+            st.write("Confusion Matrix")
+            cm = confusion_matrix(y_actual, predictions, labels=[0, 1])
+
+            st.dataframe(
+                pd.DataFrame(
+                    cm,
+                    index=["Actual 0", "Actual 1"],
+                    columns=["Predicted 0", "Predicted 1"]
+                )
+            )
 
         st.write("Prediction Results")
         st.dataframe(result)
