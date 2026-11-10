@@ -3,7 +3,16 @@ import streamlit as st
 import pandas as pd
 import joblib
 import os
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+    confusion_matrix,
+    roc_auc_score,
+    matthews_corrcoef
+)
 
 st.title("Adult Income Prediction")
 st.write("Machine Learning Assignment 2")
@@ -53,7 +62,18 @@ if uploaded_file is not None:
             st.write("Precision:", precision_score(y_actual, predictions, zero_division=0))
             st.write("Recall:", recall_score(y_actual, predictions, zero_division=0))
             st.write("F1 Score:", f1_score(y_actual, predictions, zero_division=0))
+            st.write("MCC:", matthews_corrcoef(y_actual, predictions))
+if hasattr(model, "predict_proba"):
+    y_scores = model.predict_proba(X_input)[:, 1]
+elif hasattr(model, "decision_function"):
+    y_scores = model.decision_function(X_input)
+else:
+    y_scores = None
 
+if y_scores is not None and y_actual.nunique() == 2:
+    st.write("AUC:", roc_auc_score(y_actual, y_scores))
+else:
+    st.write("AUC: Not available")
             st.write("Confusion Matrix")
             cm = confusion_matrix(y_actual, predictions, labels=[0, 1])
 
