@@ -76,16 +76,18 @@ if uploaded_file is not None:
         else:
             st.write("AUC: Not available")
 
-            st.write("Confusion Matrix")
-            cm = confusion_matrix(y_actual, predictions, labels=[0, 1])
+            
+        st.write("Confusion Matrix")
+        cm = confusion_matrix(y_actual, predictions, labels=[0, 1])
 
-            st.dataframe(
-                pd.DataFrame(
-                    cm,
-                    index=["Actual 0", "Actual 1"],
-                    columns=["Predicted 0", "Predicted 1"]
-                )
+        st.dataframe(
+            pd.DataFrame(
+                cm,
+                index=["Actual 0", "Actual 1"],
+                columns=["Predicted 0", "Predicted 1"]
             )
+        )
+
 
         st.write("Prediction Results")
         st.dataframe(result)
