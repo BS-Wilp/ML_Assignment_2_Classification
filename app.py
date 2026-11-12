@@ -147,7 +147,7 @@ if uploaded_file is not None:
                 "Predictions have been generated without "
                 "evaluation metrics."
             )
-
+        
         st.write("Prediction Results")
         st.dataframe(result)
 
