@@ -48,46 +48,105 @@ if uploaded_file is not None:
 
         model = joblib.load(model_path)
 
-        X_input = data.drop(columns=["income"], errors="ignore")
+        X_input = data.drop(
+            columns=["income"],
+            errors="ignore"
+        )
+
         predictions = model.predict(X_input)
 
         result = data.copy()
         result["Predicted Income"] = predictions
+
         if "income" in data.columns:
             y_actual = data["income"]
 
             st.subheader("Model Evaluation")
 
-            st.write("Accuracy:", accuracy_score(y_actual, predictions))
-            st.write("Precision:", precision_score(y_actual, predictions, zero_division=0))
-            st.write("Recall:", recall_score(y_actual, predictions, zero_division=0))
-            st.write("F1 Score:", f1_score(y_actual, predictions, zero_division=0))
-            st.write("MCC:", matthews_corrcoef(y_actual, predictions))
-
-        if hasattr(model, "predict_proba"):
-            y_scores = model.predict_proba(X_input)[:, 1]
-        elif hasattr(model, "decision_function"):
-            y_scores = model.decision_function(X_input)
-        else:
-            y_scores = None
-
-        if y_scores is not None and y_actual.nunique() == 2:
-            st.write("AUC:", roc_auc_score(y_actual, y_scores))
-        else:
-            st.write("AUC: Not available")
-
-            
-        st.write("Confusion Matrix")
-        cm = confusion_matrix(y_actual, predictions, labels=[0, 1])
-
-        st.dataframe(
-            pd.DataFrame(
-                cm,
-                index=["Actual 0", "Actual 1"],
-                columns=["Predicted 0", "Predicted 1"]
+            st.write(
+                "Accuracy:",
+                accuracy_score(y_actual, predictions)
             )
-        )
 
+            st.write(
+                "Precision:",
+                precision_score(
+                    y_actual, predictions,
+                    zero_division=0
+                )
+            )
+
+            st.write(
+                "Recall:",
+                recall_score(
+                    y_actual, predictions,
+                    zero_division=0
+                )
+            )
+
+            st.write(
+                "F1 Score:",
+                f1_score(
+                    y_actual, predictions,
+                    zero_division=0
+                )
+            )
+
+            st.write(
+                "MCC:",
+                matthews_corrcoef(
+                    y_actual, predictions
+                )
+            )
+
+            if hasattr(model, "predict_proba"):
+                y_scores = model.predict_proba(
+                    X_input
+                )[:, 1]
+
+            elif hasattr(model, "decision_function"):
+                y_scores = model.decision_function(
+                    X_input
+                )
+
+            else:
+                y_scores = None
+
+            if (
+                y_scores is not None
+                and y_actual.nunique() == 2
+            ):
+                st.write(
+                    "AUC:",
+                    roc_auc_score(
+                        y_actual, y_scores
+                    )
+                )
+            else:
+                st.write("AUC: Not available")
+
+            st.write("Confusion Matrix")
+
+            cm = confusion_matrix(
+                y_actual,
+                predictions,
+                labels=[0, 1]
+            )
+
+            st.dataframe(
+                pd.DataFrame(
+                    cm,
+                    index=["Actual 0", "Actual 1"],
+                    columns=["Predicted 0", "Predicted 1"]
+                )
+            )
+
+        else:
+            st.info(
+                "Actual income labels are not available. "
+                "Predictions have been generated without "
+                "evaluation metrics."
+            )
 
         st.write("Prediction Results")
         st.dataframe(result)
